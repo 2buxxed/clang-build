@@ -1,18 +1,22 @@
-name: Build test
+name: Build Lunatic Clang
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+  schedule:
+    - cron:  '0 5 * * *'
+    
 jobs:
-  build-test:
+  build-clang:
     runs-on: ubuntu-latest
+    environment: Actions
     steps:
-    - uses: actions/checkout@v2
-    - name: Install dependencies
-      run: bash ci.sh deps
-    - name: Build LLVM
-      run: bash ci.sh llvm
-    - name: Build binutils
-      run: bash ci.sh binutils
-    - name: Build kernel
-      run: bash ci.sh kernel
+      - name: Prepare Build Script
+        uses: actions/checkout@v2
+      - name: Fetch Dependencies
+        run: ./ci.sh deps
+      - name: Start Building
+        env:
+          GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
+          GIT_MAIL: ${{ secrets.GIT_MAIL }}
+          GIT_PASS: ${{ secrets.GIT_PASS }}
+          GIT_REPO_URL: ${{ secrets.GIT_REPO_URL }}
+        run: ./build-clang.sh
